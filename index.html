@@ -58,6 +58,8 @@ peer.on('connection', function(conn) {
         	setInterval(function(){
         		if(keys[13]){
         			conn.send(terminal.value);
+                    terminal.value = "";
+
          		}
             }, 100);
 
