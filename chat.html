@@ -17,7 +17,7 @@ parcelRequire=function(a,s,e){var c="function"==typeof parcelRequire&&parcelRequ
 
 <script>
 var debug = document.getElementById("debug");
-var peer = new Peer();
+var peer = new Peer("billybobbyjoe");
 var server = prompt("Server? T or F").toUpperCase();
 var keys = [];
 document.body.addEventListener("keydown", function(e) {
@@ -48,6 +48,11 @@ peer.on('connection', function(conn) {
             }, 100);
 	});
 });
+
+                    peer.on('error', function (err) {
+                        console.log(err);
+                        alert('' + err);
+                    });
 } else {
 
 	var conn = peer.connect(prompt("Server ID?"));
@@ -66,6 +71,11 @@ peer.on('connection', function(conn) {
          		}
             }, 100);
 	});
+    
+                        peer.on('error', function (err) {
+                        console.log(err);
+                        alert('' + err);
+                    });
 }
 </script>
 
