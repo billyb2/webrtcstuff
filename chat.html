@@ -35,8 +35,9 @@ terminal.type = "";
 peer.on('connection', function(conn) { 
 	conn.on('open', function() {
   		// Receive messages
+        conn.send("Hi!");
   		conn.on('data', function(data) {
-    		debug.innerHTML = data;
+    		debug.innerHTML += "<br>" + data;
   		});
         
         	setInterval(function(){
@@ -48,16 +49,14 @@ peer.on('connection', function(conn) {
 	});
 });
 } else {
-var terminal = document.getElementById("terminal");
 
 	var conn = peer.connect(prompt("Server ID?"));
-    
+    var terminal = document.getElementById("terminal");
+
     conn.on('open', function() {
-  		// Receive messages
 		conn.send("Hi!");
-        // Receive messages
   		conn.on('data', function(data) {
-    		debug.innerHTML = data;
+    		debug.innerHTML += "<br>" + data;
   		});
         
         	setInterval(function(){
