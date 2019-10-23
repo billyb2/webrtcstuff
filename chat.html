@@ -30,6 +30,8 @@ if(server == "T"){
 peer.on("open", function(id){document.getElementById("id").innerHTML = id;});
 var terminal = document.getElementById("terminal");
 terminal.type = "";
+    var username = prompt("Username?");
+
 peer.on('connection', function(conn) { 
 	conn.on('open', function() {
   		// Receive messages
@@ -40,7 +42,7 @@ peer.on('connection', function(conn) {
         
         	setInterval(function(){
         		if(keys[13]){
-        			conn.send(terminal.value);
+        			conn.send(username+": "+terminal.value);
                     terminal.value = "";
          		}
             }, 100);
@@ -52,6 +54,7 @@ peer.on('connection', function(conn) {
                     });
 } else {
 	var conn = peer.connect(prompt("Server ID?"));
+    var username = prompt("Username?");
     var terminal = document.getElementById("terminal");
     conn.on('open', function() {
 		conn.send("Hi!");
@@ -61,7 +64,7 @@ peer.on('connection', function(conn) {
         
         	setInterval(function(){
         		if(keys[13]){
-        			conn.send(terminal.value);
+        			conn.send(username+": "+terminal.value);
                     terminal.value = "";
          		}
             }, 100);
