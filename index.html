@@ -20,9 +20,19 @@ var debug = document.getElementById("debug");
 
 var peer = new Peer();
 var server = prompt("Server? T or F").toUpperCase();
+var keys = [];
+
+document.body.addEventListener("keydown", function(e) {
+    keys[e.keyCode] = true;
+});
+
+
+document.body.addEventListener("keyup", function(e) {
+    keys[e.keyCode] = false;
+});
+
 
 //Sets up servers or connections
-
 
 if(server == "T"){
 //Just gets the id onscreen, not the best but it works
@@ -45,10 +55,11 @@ peer.on('connection', function(conn) {
     		debug.innerHTML = data;
   		});
         
-			setInterval(function(){
-        	conn.send(terminal.value);
-            }, 1000);
-
+        	setInterval(function(){
+        		if(keys[13]){
+        			conn.send(terminal.value);
+         		}
+            }, 100);
 
 	});
 
@@ -64,7 +75,7 @@ peer.on('connection', function(conn) {
     conn.on('open', function() {
   		// Receive messages
   		conn.on('data', function(data) {
-    		document.getElementById("serverData").innerHTML += data;
+    		document.getElementById("serverData").innerHTML += "<br>" + data;
     	});
 
  	 	// Send messages
