@@ -1,4 +1,3 @@
- 
 <!DOCTYPE html>
 <html>
 <head>
@@ -28,73 +27,50 @@ document.body.addEventListener("keyup", function(e) {
 //Sets up servers or connections
 if(server == "T"){
 //Just gets the id onscreen, not the best but it works
-var players = [];
-var ids = [];
-
-
-//Just shows id on connection open
-peer.on("open", function(id){document.getElementById("id").innerHTML = id;} );
-
-
+peer.on("open", function(id){document.getElementById("id").innerHTML = id;});
 var terminal = document.getElementById("terminal");
 terminal.type = "";
-
 peer.on('connection', function(conn) { 
-
-	//Creates a list of players, ids, and coordinates
-	players.push(conn.metadata);
-    ids.push(conn.peer);
-    
-    
 	conn.on('open', function() {
   		// Receive messages
+        conn.send("Hi!");
   		conn.on('data', function(data) {
     		debug.innerHTML += "<br>" + data;
   		});
         
         	setInterval(function(){
         		if(keys[13]){
-					if(terminal.value == "list"){
-
-                    	//Loop through array and list all users
-                        debug.innerHTML = "";
-                    	for(var i = 0; i <= players.length; i++){
-                            debug.innerHTML += "<br>" + players[0].username;
-                        }
-                    }
-					terminal.value = "";
-
-                    
-         	    }
-           }, 100);
+        			conn.send(terminal.value);
+                    terminal.value = "";
+         		}
+            }, 100);
 	});
 });
-
-peer.on('disconnected', function(conn){
-	players.pop();
-    alert(players);
-});
-
                     peer.on('error', function (err) {
                         console.log(err);
                         alert('' + err);
                     });
 } else {
-    var username = prompt("Username?");
-	var playerX = 200;
-    var playerY = 200;
-
-	var conn = peer.connect(prompt("Server ID?"), {
-    	reliable:false,
-        label: username,
-        metadata: {
-        	playerX: playerX,
-            playerY: playerY,
-            username: username
-        }
-    });
+	var conn = peer.connect(prompt("Server ID?"));
+    var terminal = document.getElementById("terminal");
+    conn.on('open', function() {
+		conn.send("Hi!");
+  		conn.on('data', function(data) {
+    		debug.innerHTML += "<br>" + data;
+  		});
+        
+        	setInterval(function(){
+        		if(keys[13]){
+        			conn.send(terminal.value);
+                    terminal.value = "";
+         		}
+            }, 100);
+	});
     
-
+                        peer.on('error', function (err) {
+                        console.log(err);
+                        alert('' + err);
+                    });
 }
 </script>
 
