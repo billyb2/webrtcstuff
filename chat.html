@@ -38,6 +38,8 @@ peer.on('connection', function(conn) {
         conn.send("Hi!");
   		conn.on('data', function(data) {
     		debug.innerHTML += "<br>" + data;
+                                alert(peer.connections);
+
   		});
         
         	setInterval(function(){
@@ -52,8 +54,11 @@ peer.on('connection', function(conn) {
                         console.log(err);
                         alert('' + err);
                     });
+                    
 } else {
-	var conn = peer.connect(prompt("Server ID?"));
+	var conn = peer.connect(prompt("Server ID?"), {
+    	reliable: true
+    });
     var username = prompt("Username?");
     var terminal = document.getElementById("terminal");
     conn.on('open', function() {
