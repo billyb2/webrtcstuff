@@ -67,10 +67,30 @@ peer.on('connection', function(conn) {
                     
          	    }
            }, 100);
+           
+           alert(conn.label.f);
 	});
 });
 
+
+function removePlayer(identifierType, identifier){
+	var playerIndexToRemove;
+	if(identifierType == "username"){
+        for(var i = 0; i <= players.length; i++){
+        	if(players[i].username == identifier){
+    			playerIndexToRemove = i;
+                break;
+            }
+    	}
+    
+    }
+    players.splice(playerIndexToRemove, 1);
+    alert(players);
+}
+
 peer.on('disconnected', function(conn){
+	//Find the player that disconnected, and remove them from the list
+
 	players.pop();
     alert(players);
 });
