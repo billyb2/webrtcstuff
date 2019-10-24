@@ -10,11 +10,18 @@
 <p id="debug"></p>
 <p id="serverData"></p>
 <input id="terminal"></input>
+<canvas id="canvas">
 
 <script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
 
 
 <script>
+//Canvas stuff
+var c=document.getElementById("canvas");
+var ctx=c.getContext("2d");
+ctx.canvas.width = 200;
+ctx.canvas.height = 200;
+
 var debug = document.getElementById("debug");
 var peer = new Peer();
 var server = prompt("Server? T or F").toUpperCase();
@@ -47,9 +54,14 @@ peer.on('connection', function(conn) {
     
     
 	conn.on('open', function() {
-  		// Receive messages
+  		// Receive 
   		conn.on('data', function(data) {
-    		debug.innerHTML += "<br>" + data;
+        	//Clear the screen
+
+            
+            //Put all players on the screen
+        	ctx.fillStyle=data.color;
+    		ctx.fillRect(data.playerX, data.playerY, 20, 20);
   		});
         
         	setInterval(function(){
@@ -59,7 +71,7 @@ peer.on('connection', function(conn) {
                     	//Loop through array and list all users
                         debug.innerHTML = "";
                     	for(var i = 0; i <= players.length; i++){
-                            debug.innerHTML += "<br>" + players[0].username;
+                            debug.innerHTML+="<br>"+players[i].username;
                         }
                     }
 					terminal.value = "";
@@ -68,7 +80,6 @@ peer.on('connection', function(conn) {
          	    }
            }, 100);
            
-           alert(conn.label.f);
 	});
 });
 
@@ -90,7 +101,6 @@ function removePlayer(identifierType, identifier){
 
 peer.on('disconnected', function(conn){
 	//Find the player that disconnected, and remove them from the list
-
 	players.pop();
     alert(players);
 });
@@ -100,20 +110,50 @@ peer.on('disconnected', function(conn){
                         alert('' + err);
                     });
 } else {
+	//Code for the random color stolen from another pror
+	function getRandomColor() {
+ 		var letters = '0123456789ABCDEF';
+ 		var color = '#';
+        
+  		for (var i = 0; i < 6; i++) {
+    		color += letters[Math.floor(Math.random() * 16)];
+  		}
+        
+  		return color;
+		}
+
     var username = prompt("Username?");
-	var playerX = 200;
-    var playerY = 200;
+	var information = {
+		color: getRandomColor(),
+        playerX: 100,
+        playerY: 100,
+        username: username
+    }
 
 	var conn = peer.connect(prompt("Server ID?"), {
     	reliable:false,
         label: username,
         metadata: {
-        	playerX: playerX,
-            playerY: playerY,
             username: username
         }
     });
     
+	conn.on('open', loop);
+    
+    function loop(){
+    	if(keys[37]){
+        	information.playerX -= 2;
+        }
+        
+        if(keys[39]){
+        	information.playerX -= 2;
+        }
+    
+    
+    	conn.send(information);
+    	requestAnimationFrame(loop);
+    }
+      
 
 }
 </script>
