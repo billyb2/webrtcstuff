@@ -34,9 +34,23 @@ document.body.addEventListener("keyup", function(e) {
 });
 //Sets up servers or connections
 if(server == "T"){
-//Just gets the id onscreen, not the best but it works
+
+//I know this would be easier to manage with objects, but I'm exhausted
 var players = [];
-var ids = [];
+var playersData = [];
+
+
+//https://stackoverflow.com/questions/4587061/how-to-determine-if-object-is-in-array
+function containsObject(obj, list) {
+    var i;
+    for (i = 0; i < list.length; i++) {
+        if (list[i] === obj) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 
 //Just shows id on connection open
@@ -54,14 +68,22 @@ peer.on('connection', function(conn) {
     
     
 	conn.on('open', function() {
-  		// Receive 
+    
+    	//If data is received...
   		conn.on('data', function(data) {
-        	//Clear the screen
+
+        	
+        	/**
+				Clears the screen
+                gotta make it so it checks that it draws every player, somehow
+            **/
+            
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
             
-            //Put all players on the screen
-        	ctx.fillStyle=data.color;
-    		ctx.fillRect(data.playerX, data.playerY, 20, 20);
+
+            
   		});
         
         	setInterval(function(){
@@ -70,7 +92,7 @@ peer.on('connection', function(conn) {
 
                     	//Loop through array and list all users
                         debug.innerHTML = "";
-                    	for(var i = 0; i <= players.length; i++){
+                    	for(var i = 0; i < players.length; i++){
                             debug.innerHTML+="<br>"+players[i].username;
                         }
                     }
