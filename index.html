@@ -200,18 +200,15 @@ peer.on('error', function (err) {
 	});
     
 
+
     
     function loop(){
-    
-    	conn.on('open', function() {
-    
-    	//If data is received...
-  		conn.on('data', function(data) {
-        	    debug.innerHTML += "Server: " + terminal.value;
+      		conn.on('data', function(data) {
+                	    debug.innerHTML += "<br>" + data
+
         
         });
-        
-        });
+
     	if(keys[37]){
         	information.playerX -= 2;
         }
