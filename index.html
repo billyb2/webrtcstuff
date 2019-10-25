@@ -23,7 +23,7 @@ ctx.canvas.width = 200;
 ctx.canvas.height = 200;
 
 var debug = document.getElementById("debug");
-var peer = new Peer("wowzerz");
+var peer = new Peer();
 var server = prompt("Server? T or F").toUpperCase();
 var keys = [];
 document.body.addEventListener("keydown", function(e) {
@@ -33,11 +33,12 @@ document.body.addEventListener("keyup", function(e) {
     keys[e.keyCode] = false;
 });
 //Sets up servers or connections
-if(server == "T"){
+	if(server.toUpperCase() == "T"){
 
 //I know this would be easier to manage with objects, but I'm exhausted
 var players = [];
 var playersData = [];
+var playerCoors = [];
 
 
 //https://stackoverflow.com/questions/4587061/how-to-determine-if-object-is-in-array
@@ -54,6 +55,7 @@ function containsObject(obj, list) {
 
 
 //Just shows id on connection open
+	
 peer.on("open", function(id){document.getElementById("id").innerHTML = id;} );
 
 
@@ -70,6 +72,8 @@ peer.on('connection', function(conn) {
     
     	//If data is received...
   		conn.on('data', function(data) {
+        
+
 
         	
         	/**
@@ -77,11 +81,28 @@ peer.on('connection', function(conn) {
                 gotta make it so it checks that it draws every player, somehow
             **/
             
+            
+            
+            
             ctx.fillStyle = "white";
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-			ctx.fillStyle = data.color;
-            ctx.fillRect(data.playerX, data.playerY, 20, 20);
             
+                    for(var i = 0; i < players.length; i++){
+        	if(players[i].username == data.username){
+            	players[i].playerX = data.playerX;
+                players[i].playerY = data.playerY;
+                
+                ctx.fillStyle = data.color;
+                ctx.fillRect(players[i].playerX, players[i].playerY, 5, 5);
+                
+            }
+        }
+            
+			/**
+            This is a bad method for drawing al players, as if theres more than one person connected it will only draw one.
+            ctx.fillStyle = data.color;
+            ctx.fillRect(data.playerX, data.playerY, 20, 20);
+            **/
 
             
   		});
@@ -127,10 +148,12 @@ peer.on('disconnected', function(conn){
     alert(players);
 });
 
-                    peer.on('error', function (err) {
-                        console.log(err);
-                        alert('' + err);
-                    });
+peer.on('error', function (err) {
+    console.log(err);
+	alert('' + err);
+});
+
+
 } else {
 	//Code for the random color stolen from another pror
 	function getRandomColor() {
@@ -156,11 +179,19 @@ peer.on('disconnected', function(conn){
     	reliable:false,
         label: username,
         metadata: {
-            username: username
+            username: username,
+            playerX: 100,
+            playerY: 100
         }
     });
     
 	conn.on('open', loop);
+    
+
+	peer.on('error', function (err) {
+    	console.log(err);
+		alert('' + err);
+	});
     
     function loop(){
     	if(keys[37]){
