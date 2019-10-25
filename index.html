@@ -1,3 +1,4 @@
+
  
 <!DOCTYPE html>
 <html>
@@ -116,6 +117,11 @@ peer.on('connection', function(conn) {
                     	for(var i = 0; i < players.length; i++){
                             debug.innerHTML+="<br>"+players[i].username;
                         }
+                    } else if(terminal.value == "clear"){
+                    	debug.innerHTML = "";
+                    } else {
+                    	conn.send(terminal.value);
+                    	debug.innerHTML += "Server: " + terminal.value;
                     }
 					terminal.value = "";
 
@@ -193,7 +199,19 @@ peer.on('error', function (err) {
 		alert('' + err);
 	});
     
+
+    
     function loop(){
+    
+    	conn.on('open', function() {
+    
+    	//If data is received...
+  		conn.on('data', function(data) {
+        	    debug.innerHTML += "Server: " + terminal.value;
+        
+        });
+        
+        });
     	if(keys[37]){
         	information.playerX -= 2;
         }
