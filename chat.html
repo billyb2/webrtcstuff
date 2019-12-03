@@ -1,8 +1,18 @@
 <script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
 <script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
 <p id="chatLog"></p>
+<input id="terminal"></input>
+
 
 <script>
+var keys = [];
+document.body.addEventListener("keydown", function(e) {
+    keys[e.keyCode] = true;
+});
+document.body.addEventListener("keyup", function(e) {
+    keys[e.keyCode] = false;
+});
+
 var connection = new RTCMultiConnection();
 
 // this line is VERY_important
@@ -13,6 +23,8 @@ connection.session = {
     data: true
 };
 
+
+
 connection.userid = prompt('User ID?');
 
 
@@ -22,8 +34,16 @@ connection.onopen = function(event) {
 };
 
 connection.onmessage = function(event) {   
-    document.getElementById("chatLog").innerHTML += event.userid + ": " + event.dataa
+    document.getElementById("chatLog").innerHTML += event.userid + ": " + event.data + "<br>" 
 };
 
 connection.openOrJoin(prompt("Room ID?"));
+
+setInterval(function(){
+	if(keys[13]){
+		connection.send(terminal.value);
+        document.getElementById("chatLog").innerHTML += connection.userid + ": " + terminal.value + "<br>"
+       	terminal.value = "";
+	}
+}, 100);
 </script>
