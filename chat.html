@@ -1,86 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Page Title</title>
-</head>
-<body>
-
-<p id="id"></p>
-<p id="debug"></p>
-<p id="serverData"></p>
-<input id="terminal"></input>
-
-<script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
-
+<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+<script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
+<p id="chatLog"></p>
 
 <script>
-var debug = document.getElementById("debug");
-var peer = new Peer();
-var server = prompt("Server? T or F").toUpperCase();
-var keys = [];
-document.body.addEventListener("keydown", function(e) {
-    keys[e.keyCode] = true;
-});
-document.body.addEventListener("keyup", function(e) {
-    keys[e.keyCode] = false;
-});
-//Sets up servers or connections
-if(server == "T"){
-//Just gets the id onscreen, not the best but it works
-peer.on("open", function(id){document.getElementById("id").innerHTML = id;});
-var terminal = document.getElementById("terminal");
-terminal.type = "";
-    var username = prompt("Username?");
+var connection = new RTCMultiConnection();
 
-peer.on('connection', function(conn) { 
-	conn.on('open', function() {
-  		// Receive messages
-        conn.send("Hi!");
-  		conn.on('data', function(data) {
-    		debug.innerHTML += "<br>" + data;
-                                alert(peer.connections);
+// this line is VERY_important
+connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
-  		});
-        
-        	setInterval(function(){
-        		if(keys[13]){
-        			conn.send(username+": "+terminal.value);
-                    terminal.value = "";
-         		}
-            }, 100);
-	});
-});
-                    peer.on('error', function (err) {
-                        console.log(err);
-                        alert('' + err);
-                    });
-                    
-} else {
-	var conn = peer.connect(prompt("Server ID?"), {
-    	reliable: true
-    });
-    var username = prompt("Username?");
-    var terminal = document.getElementById("terminal");
-    conn.on('open', function() {
-		conn.send("Hi!");
-  		conn.on('data', function(data) {
-    		debug.innerHTML += "<br>" + data;
-  		});
-        
-        	setInterval(function(){
-        		if(keys[13]){
-        			conn.send(username+": "+terminal.value);
-                    terminal.value = "";
-         		}
-            }, 100);
-	});
-    
-                        peer.on('error', function (err) {
-                        console.log(err);
-                        alert('' + err);
-                    });
-}
+// if you want text chat
+connection.session = {
+    data: true
+};
+
+connection.userid = prompt('User ID?');
+
+
+
+connection.onopen = function(event) {
+    connection.send('hello everyone');
+};
+
+connection.onmessage = function(event) {   
+    document.getElementById("chatLog").innerHTML += event.userid + ": " + event.dataa
+};
+
+connection.openOrJoin(prompt("Room ID?"));
 </script>
-
-</body>
-</html>
