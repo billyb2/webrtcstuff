@@ -37,6 +37,10 @@ connection.onmessage = function(event) {
     document.getElementById("chatLog").innerHTML += event.userid + ": " + event.data + "<br>" 
 };
 
+connection.onNewParticipant =  function(participantId){
+	document.getElementById("chatlog").innerHTML += participantId + " has joined!";
+}
+
 connection.openOrJoin(prompt("Room ID?"));
 
 setInterval(function(){
