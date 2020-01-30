@@ -1,230 +1,106 @@
-
- 
-<!DOCTYPE html>
-<html>
-<head>
-<title>Page Title</title>
-</head>
-<body>
-
-<p id="id"></p>
-<p id="debug"></p>
-<p id="serverData"></p>
-<input id="terminal"></input>
-<canvas id="canvas">
-
-<script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
-
+<p id="log"></p>
+<canvas id="canvas"></canvas>
+<script src="https://chr15m.github.io/bugout/bugout.min.js"></script>
 
 <script>
-//Canvas stuff
-var c=document.getElementById("canvas");
-var ctx=c.getContext("2d");
-ctx.canvas.width = 200;
-ctx.canvas.height = 200;
 
-var debug = document.getElementById("debug");
-var peer = new Peer();
-var server = prompt("Server? T or F").toUpperCase();
+function log(data){
+	document.getElementById("log").innerHTML += "<p>" + data + "</p>"
+}
+
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext('2d');
+
+ctx.canvas.width = 400;
+ctx.canvas.height = 400;
+
 var keys = [];
-document.body.addEventListener("keydown", function(e) {
-    keys[e.keyCode] = true;
-});
-document.body.addEventListener("keyup", function(e) {
-    keys[e.keyCode] = false;
-});
-//Sets up servers or connections
-	if(server.toUpperCase() == "T"){
 
-//I know this would be easier to manage with objects, but I'm exhausted
-var players = [];
-var playersData = [];
-var playerCoors = [];
-
-
-//https://stackoverflow.com/questions/4587061/how-to-determine-if-object-is-in-array
-function containsObject(obj, list) {
-    var i;
-    for (i = 0; i < list.length; i++) {
-        if (list[i] === obj) {
-            return true;
-        }
-    }
-
-    return false;
+    
+if(isHost == "y"){
+	var b = new Bugout();
+    log(b.address());
 }
 
-
-//Just shows id on connection open
-	
-peer.on("open", function(id){document.getElementById("id").innerHTML = id;} );
-
-
-var terminal = document.getElementById("terminal");
-terminal.type = "";
-
-peer.on('connection', function(conn) { 
-
-	//Creates a list of players, ids, and coordinates
-	players.push(conn.metadata);
-    
-    
-	conn.on('open', function() {
-    
-    	//If data is received...
-  		conn.on('data', function(data) {
-        
-
-
-        	
-        	/**
-				Clears the screen
-                gotta make it so it checks that it draws every player, somehow
-            **/
-            
-            
-            
-            
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            
-                    for(var i = 0; i < players.length; i++){
-        	if(players[i].username == data.username){
-            	players[i].playerX = data.playerX;
-                players[i].playerY = data.playerY;
-                
-                ctx.fillStyle = data.color;
-                ctx.fillRect(players[i].playerX, players[i].playerY, 5, 5);
-                
-            }
-        }
-            
-			/**
-            This is a bad method for drawing al players, as if theres more than one person connected it will only draw one.
-            ctx.fillStyle = data.color;
-            ctx.fillRect(data.playerX, data.playerY, 20, 20);
-            **/
-
-            
-  		});
-        
-        	setInterval(function(){
-        		if(keys[13]){
-					if(terminal.value == "list"){
-
-                    	//Loop through array and list all users
-                        debug.innerHTML = "";
-                    	for(var i = 0; i < players.length; i++){
-                            debug.innerHTML+="<br>"+players[i].username;
-                        }
-                    } else if(terminal.value == "clear"){
-                    	debug.innerHTML = "";
-                    } else {
-                    	conn.send(terminal.value);
-                    	debug.innerHTML += "Server: " + terminal.value;
-                    }
-					terminal.value = "";
-
-                    
-         	    }
-           }, 100);
-           
+	//Key detection stuff
+	document.body.addEventListener("keydown", function(e) {
+		keys[e.keyCode] = true;
 	});
-});
 
+	document.body.addEventListener("keyup", function(e) {
+		keys[e.keyCode] = false;
+	});
 
-function removePlayer(identifierType, identifier){
-	var playerIndexToRemove;
-	if(identifierType == "username"){
-        for(var i = 0; i <= players.length; i++){
-        	if(players[i].username == identifier){
-    			playerIndexToRemove = i;
-                break;
-            }
-    	}
-    
-    }
-    players.splice(playerIndexToRemove, 1);
-    alert(players);
+var player = {
+	x: 0,
+    y: 0,
+    width: 12,
+    height: 12
 }
 
-peer.on('disconnected', function(conn){
-	//Find the player that disconnected, and remove them from the list
-	players.pop();
-    alert(players);
-});
-
-peer.on('error', function (err) {
-    console.log(err);
-	alert('' + err);
-});
-
-
+var isHost = prompt("Host? y or no");
+var addr;
+if(isHost == "y"){
+	b = new Bugout();
+    log( b.address() );
 } else {
-	//Code for the random color stolen from another pror
-	function getRandomColor() {
- 		var letters = '0123456789ABCDEF';
- 		var color = '#';
-        
-  		for (var i = 0; i < 6; i++) {
-    		color += letters[Math.floor(Math.random() * 16)];
-  		}
-        
-  		return color;
-		}
-
-    var username = prompt("Username?");
-	var information = {
-		color: getRandomColor(),
-        playerX: 100,
-        playerY: 100,
-        username: username
-    }
-
-	var conn = peer.connect(prompt("Server ID?"), {
-    	reliable:false,
-        label: username,
-        metadata: {
-            username: username,
-            playerX: 100,
-            playerY: 100
-        }
-    });
-    
-	conn.on('open', loop);
-    
-
-	peer.on('error', function (err) {
-    	console.log(err);
-		alert('' + err);
-	});
-    
-
-
-    
-    function loop(){
-      		conn.on('data', function(data) {
-                	    debug.innerHTML += "<br>" + data
-
-        
-        });
-
-    	if(keys[37]){
-        	information.playerX -= 2;
-        }
-        
-        if(keys[39]){
-        	information.playerX -= 2;
-        }
-    
-    
-    	conn.send(information);
-    	requestAnimationFrame(loop);
-    }
-      
+	addr = prompt("Addr?")
+	b = new Bugout(addr);
+    log( b.address() );
 
 }
-</script>
 
-</body>
-</html>
+var player2 = {
+	x: 0,
+    y: 0,
+    width: 12,
+    height: 12
+};
+
+
+function frame(){
+	ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.fillStyle = "black";
+	ctx.fillRect(player.x, player.y, player.width, player.height);
+    
+    ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+    
+    if(keys[39]){
+    	player.x += 5;
+    }
+    
+    if(keys[37]){
+    	player.x -= 5;
+    }
+    
+    if(keys[40]){
+    	player.y += 5;
+    }
+    
+    if(keys[38]){
+    	player.y -= 5;
+    }
+    
+    
+ 
+  
+	requestAnimationFrame(frame);
+}
+
+frame();
+
+	b.on("message", function(address, p2) {
+    	if(address !== b.address()){
+			player2 = p2;
+        }
+	});   
+    
+setInterval(function(){
+	if(isHost !== "y"){
+		b.send(addr, player);
+	} else {
+    	b.send(player);
+    }
+}, 100);
+</script>
