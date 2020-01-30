@@ -1,53 +1,52 @@
-<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
-<script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
-<p id="chatLog"></p>
-<input id="terminal"></input>
-
-
+<p id="log"></p>
+<input type="text" id='input'></input>
+<button onclick="submit()">Submit</button>
+<script src="https://chr15m.github.io/bugout/bugout.min.js"></script>
 <script>
-var keys = [];
-document.body.addEventListener("keydown", function(e) {
-    keys[e.keyCode] = true;
-});
-document.body.addEventListener("keyup", function(e) {
-    keys[e.keyCode] = false;
-});
-
-var connection = new RTCMultiConnection();
-
-// this line is VERY_important
-connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
-
-// if you want text chat
-connection.session = {
-    data: true
-};
-
-
-
-connection.userid = prompt('User ID?');
-
-
-
-connection.onopen = function(event) {
-    connection.send('hello everyone');
-};
-
-connection.onmessage = function(event) {   
-    document.getElementById("chatLog").innerHTML += event.userid + ": " + event.data + "<br>" 
-};
-
-connection.onNewParticipant =  function(participantId){
-	document.getElementById("chatlog").innerHTML += participantId + " has joined!";
+function log(data){
+	document.getElementById("log").innerHTML += "<p>" + data + "</p>"
 }
 
-connection.openOrJoin(prompt("Room ID?"));
+var isHost = prompt("Host? y or no");
 
-setInterval(function(){
-	if(keys[13]){
-		connection.send(terminal.value);
-        document.getElementById("chatLog").innerHTML += connection.userid + ": " + terminal.value + "<br>"
-       	terminal.value = "";
-	}
-}, 100);
+if(isHost == "y"){
+	var b = new Bugout();
+
+  // get the server address (public key hash) to share with clients
+  // this is what clients will use to connect back to this server
+  log( b.address() );
+
+  // register an API call the remote user can make
+  b.register("ping", function(address, args, callback) {
+    // modify the passed arguments and reply
+    args.addr = "TEST!!!!";
+    callback(args);
+  });
+  
+  b.on("message", function(address, message) {
+    log(message);
+  });
+
+} else {
+
+var b = new Bugout(prompt("Server hash"));
+
+// wait until we see the server
+// (can take a minute to tunnel through firewalls etc.)
+b.on("server", function(address) {
+  // once we can see the server
+  // make an API call on it
+});
+
+function submit(){
+	var input = document.getElementById("input");
+    log("Me: " + input.value);
+	b.send(input.value);
+    input.value = "";
+    
+}
+
+
+}
+
 </script>
